@@ -1,0 +1,55 @@
+{% extends "students/base.html" %}
+
+{% block title %}Courses | StudentMS{% endblock %}
+{% block page_heading %}Courses{% endblock %}
+
+{% block content %}
+    <section class="page-heading">
+        <div>
+            <h2>Course directory</h2>
+            <p>Browse courses and their departments.</p>
+        </div>
+        <span class="count">Total: {{ total_courses }}</span>
+        {% if is_admin %}<a class="btn" href="{% url 'course_create' %}">Add course</a>{% endif %}
+    </section>
+
+    <section class="panel">
+        <form method="get" class="search-form" action="{% url 'course_list' %}">
+            <input type="search" name="q" value="{{ query }}" placeholder="Search courses or departments" aria-label="Search courses">
+            <button class="btn" type="submit">Search</button>
+            <a class="btn btn-secondary" href="{% url 'course_list' %}">Clear</a>
+        </form>
+        <div class="table-wrapper">
+            <table>
+                <thead><tr><th>#</th><th>Course name</th><th>Department</th><th>Duration</th>{% if is_admin %}<th>Actions</th>{% endif %}</tr></thead>
+                <tbody>
+                    {% for course in courses %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td><strong>{{ course.name }}</strong></td>
+                            <td>{{ course.department.name }}</td>
+                            <td>{{ course.duration|default:"—" }}</td>
+                            {% if is_admin %}
+                                <td class="actions">
+                                    <a class="btn btn-secondary" href="{% url 'course_update' course.pk %}">Edit</a>
+                                    <form method="post" action="{% url 'course_delete' course.pk %}" data-confirm="Delete this course?">
+                                        {% csrf_token %}<button class="btn btn-danger" type="submit">Delete</button>
+                                    </form>
+                                </td>
+                            {% endif %}
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="{% if is_admin %}5{% else %}4{% endif %}" class="empty">No courses have been added yet.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% if page_obj.paginator.num_pages > 1 %}
+            <nav class="pagination" aria-label="Course pages">
+                {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}&amp;q={{ query|urlencode }}">Previous</a>{% endif %}
+                <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}&amp;q={{ query|urlencode }}">Next</a>{% endif %}
+            </nav>
+        {% endif %}
+    </section>
+{% endblock %}

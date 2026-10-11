@@ -1,0 +1,59 @@
+{% extends "students/base.html" %}
+
+{% block title %}My Dashboard | StudentMS{% endblock %}
+{% block page_heading %}My Dashboard{% endblock %}
+
+{% block content %}
+    <p class="muted">Welcome, {{ request.user.username }}. Here is your personal academic overview.</p>
+
+    {% if student_profile %}
+        <section class="panel">
+            <h2>My Profile</h2>
+            <div class="content-grid">
+                <p><strong>Name:</strong> {{ student_profile.name }}</p>
+                <p><strong>Email:</strong> {{ student_profile.email }}</p>
+                <p><strong>Department:</strong> {{ student_profile.department }}</p>
+                <p><strong>Course:</strong> {{ student_profile.course }}</p>
+                <p><strong>Semester:</strong> {{ student_profile.semester|default:"—" }}</p>
+                <p><strong>Section:</strong> {{ student_profile.section|default:"—" }}</p>
+            </div>
+            <a class="btn btn-secondary" href="{% url 'student_profile' %}">View profile</a>
+        </section>
+
+        <section class="cards">
+            <article class="stat-card"><p>Subjects / Marks Records</p><h2>{{ total_marks_records|default:0 }}</h2></article>
+            <article class="stat-card"><p>Classes Present</p><h2>{{ present_count|default:0 }}</h2></article>
+            <article class="stat-card"><p>Total Attendance Records</p><h2>{{ attendance_count|default:0 }}</h2></article>
+        </section>
+
+        <section class="panel">
+            <h2>My Marks &amp; Results</h2>
+            <div class="table-wrapper">
+                <table>
+                    <thead><tr><th>Subject</th><th>Total Marks</th><th>Grade</th><th>Result</th></tr></thead>
+                    <tbody>
+                        {% for mark in student_marks %}
+                            <tr><td>{{ mark.subject }}</td><td>{{ mark.total_marks }}</td><td>{{ mark.grade }}</td><td><span class="badge {% if mark.result == 'Pass' %}badge-success{% else %}badge-danger{% endif %}">{{ mark.result }}</span></td></tr>
+                        {% empty %}<tr><td colspan="4" class="empty">No results are available yet.</td></tr>{% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="panel">
+            <h2>My Attendance</h2>
+            <div class="table-wrapper">
+                <table>
+                    <thead><tr><th>Date</th><th>Status</th></tr></thead>
+                    <tbody>
+                        {% for record in student_attendance %}
+                            <tr><td>{{ record.date|date:"d M Y" }}</td><td><span class="badge {% if record.status == 'Present' %}badge-success{% else %}badge-danger{% endif %}">{{ record.status }}</span></td></tr>
+                        {% empty %}<tr><td colspan="2" class="empty">No attendance records are available yet.</td></tr>{% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    {% else %}
+        <div class="notice">Your login account is not linked to a student record yet. Please contact your administrator.</div>
+    {% endif %}
+{% endblock %}

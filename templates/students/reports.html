@@ -1,0 +1,653 @@
+{% extends "students/base.html" %}
+
+{% block title %}Reports | StudentMS{% endblock %}
+{% block page_heading %}Reports{% endblock %}
+
+{% block content %}
+    <p class="muted">Review student, attendance, marks, department, and course summaries.</p>
+<!-- ================= SUMMARY ================= -->
+
+    <div class="stats">
+
+        <div class="stat-card indigo">
+
+            <h3>Total Students</h3>
+
+            <h2>
+                {{ total_students }}
+            </h2>
+
+        </div>
+
+
+        <div class="stat-card green">
+
+            <h3>Departments</h3>
+
+            <h2>
+                {{ total_departments }}
+            </h2>
+
+        </div>
+
+
+        <div class="stat-card orange">
+
+            <h3>Courses</h3>
+
+            <h2>
+                {{ total_courses }}
+            </h2>
+
+        </div>
+
+
+        <div class="stat-card teal">
+
+            <h3>Attendance Records</h3>
+
+            <h2>
+                {{ total_attendance }}
+            </h2>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================= REPORT CARD ================= -->
+
+    <div class="card">
+
+
+        <!-- ================= SEARCH ================= -->
+
+        <div class="top-controls">
+
+            <form method="GET" class="search-form">
+
+                <input
+                    type="text"
+                    name="search"
+                    value="{{ search }}"
+                    placeholder="Search student, email, phone, department or course..."
+                >
+
+                <input
+                    type="hidden"
+                    name="type"
+                    value="{{ report_type }}"
+                >
+
+                <button
+                    type="submit"
+                    class="btn btn-primary">
+                    🔍 Search
+                </button>
+
+            </form>
+
+
+            <button
+                type="button"
+                class="btn btn-print"
+                data-print-report>
+                🖨 Print Report
+            </button>
+
+        </div>
+
+
+        <!-- ================= REPORT TABS ================= -->
+
+        <div class="tabs">
+
+            <a
+                href="{% url 'reports' %}?type=students{% if search %}&search={{ search }}{% endif %}"
+                class="{% if report_type == 'students' %}active{% endif %}">
+                👨‍🎓 Students
+            </a>
+
+
+            <a
+                href="{% url 'reports' %}?type=attendance{% if search %}&search={{ search }}{% endif %}"
+                class="{% if report_type == 'attendance' %}active{% endif %}">
+                🕒 Attendance
+            </a>
+
+
+            <a
+                href="{% url 'reports' %}?type=marks{% if search %}&search={{ search }}{% endif %}"
+                class="{% if report_type == 'marks' %}active{% endif %}">
+                📝 Marks
+            </a>
+
+
+            <a
+                href="{% url 'reports' %}?type=departments{% if search %}&search={{ search }}{% endif %}"
+                class="{% if report_type == 'departments' %}active{% endif %}">
+                🏛 Departments
+            </a>
+
+
+            <a
+                href="{% url 'reports' %}?type=courses{% if search %}&search={{ search }}{% endif %}"
+                class="{% if report_type == 'courses' %}active{% endif %}">
+                📚 Courses
+            </a>
+
+        </div>
+
+
+        <!-- ================================================== -->
+        <!-- STUDENTS REPORT -->
+        <!-- ================================================== -->
+
+        {% if report_type == 'students' %}
+
+        <h2>👨‍🎓 Student Report</h2>
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Department</th>
+                        <th>Course</th>
+                        <th>Semester</th>
+                        <th>Section</th>
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for student in students %}
+
+                    <tr>
+
+                        <td>
+                            <strong>
+                                {{ student.name }}
+                            </strong>
+                        </td>
+
+                        <td>
+                            {{ student.email }}
+                        </td>
+
+                        <td>
+                            {{ student.phone|default:"-" }}
+                        </td>
+
+                        <td>
+                            {{ student.department }}
+                        </td>
+
+                        <td>
+                            {{ student.course }}
+                        </td>
+
+                        <td>{{ student.semester|default:"—" }}</td>
+                        <td>{{ student.section|default:"—" }}</td>
+
+                    </tr>
+
+
+                    {% empty %}
+
+                    <tr>
+
+                        <td colspan="7" class="empty">
+                            No students found.
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        {% endif %}
+
+
+        <!-- ================================================== -->
+        <!-- ATTENDANCE REPORT -->
+        <!-- ================================================== -->
+
+        {% if report_type == 'attendance' %}
+
+        <h2>🕒 Attendance Report</h2>
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>Student</th>
+                        <th>Total Days</th>
+                        <th>Present</th>
+                        <th>Absent</th>
+                        <th>Attendance</th>
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for item in attendance_report %}
+
+                    <tr>
+
+                        <td>
+                            <strong>
+                                {{ item.student.name }}
+                            </strong>
+                        </td>
+
+                        <td>
+                            {{ item.total_days }}
+                        </td>
+
+                        <td>
+
+                            <span class="badge badge-success">
+                                {{ item.present_days }}
+                            </span>
+
+                        </td>
+
+                        <td>
+
+                            <span class="badge badge-danger">
+                                {{ item.absent_days }}
+                            </span>
+
+                        </td>
+
+                        <td>
+
+                            {% if item.percentage >= 75 %}
+
+                                <span class="badge badge-success">
+                                    {{ item.percentage }}%
+                                </span>
+
+                            {% elif item.percentage >= 50 %}
+
+                                <span class="badge badge-warning">
+                                    {{ item.percentage }}%
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge badge-danger">
+                                    {{ item.percentage }}%
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                    </tr>
+
+
+                    {% empty %}
+
+                    <tr>
+
+                        <td colspan="5" class="empty">
+                            No attendance records found.
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        {% endif %}
+
+
+        <!-- ================================================== -->
+        <!-- MARKS REPORT -->
+        <!-- ================================================== -->
+
+        {% if report_type == 'marks' %}
+
+        <h2>📝 Marks & Results Report</h2>
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>Student</th>
+                        <th>Subject</th>
+                        <th>Internal</th>
+                        <th>Assignment</th>
+                        <th>Practical</th>
+                        <th>Exam</th>
+                        <th>Total</th>
+                        <th>Grade</th>
+                        <th>Result</th>
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for mark in marks_report %}
+
+                    <tr>
+
+                        <td>
+                            <strong>
+                                {{ mark.student.name }}
+                            </strong>
+                        </td>
+
+                        <td>
+                            {{ mark.subject }}
+                        </td>
+
+                        <td>
+                            {{ mark.internal_marks }}
+                        </td>
+
+                        <td>
+                            {{ mark.assignment_marks }}
+                        </td>
+
+                        <td>
+                            {{ mark.practical_marks }}
+                        </td>
+
+                        <td>
+                            {{ mark.exam_marks }}
+                        </td>
+
+                        <td>
+                            <strong>
+                                {{ mark.total_marks }}
+                            </strong>
+                        </td>
+
+
+                        <td>
+
+                            {% if mark.grade == 'A+' %}
+
+                                <span class="badge badge-success">
+                                    {{ mark.grade }}
+                                </span>
+
+                            {% elif mark.grade == 'A' %}
+
+                                <span class="badge badge-success">
+                                    {{ mark.grade }}
+                                </span>
+
+                            {% elif mark.grade == 'B' %}
+
+                                <span class="badge badge-info">
+                                    {{ mark.grade }}
+                                </span>
+
+                            {% elif mark.grade == 'C' %}
+
+                                <span class="badge badge-warning">
+                                    {{ mark.grade }}
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge badge-danger">
+                                    {{ mark.grade }}
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <td>
+
+                            {% if mark.result == 'Pass' %}
+
+                                <span class="badge badge-success">
+                                    Pass
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge badge-danger">
+                                    Fail
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                    </tr>
+
+
+                    {% empty %}
+
+                    <tr>
+
+                        <td colspan="9" class="empty">
+                            No marks records found.
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        {% endif %}
+
+
+        <!-- ================================================== -->
+        <!-- DEPARTMENT REPORT -->
+        <!-- ================================================== -->
+
+        {% if report_type == 'departments' %}
+
+        <h2>🏛 Department Report</h2>
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>Department</th>
+                        <th>Description</th>
+                        <th>Students</th>
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for item in department_report %}
+
+                    <tr>
+
+                        <td>
+                            <strong>
+                                {{ item.department.name }}
+                            </strong>
+                        </td>
+
+                        <td>
+                            {{ item.department.description|default:"No description" }}
+                        </td>
+
+                        <td>
+                            <strong>
+                                {{ item.student_count }}
+                            </strong>
+                        </td>
+
+                    </tr>
+
+
+                    {% empty %}
+
+                    <tr>
+
+                        <td colspan="3" class="empty">
+                            No departments found.
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        {% endif %}
+
+
+        <!-- ================================================== -->
+        <!-- COURSE REPORT -->
+        <!-- ================================================== -->
+
+        {% if report_type == 'courses' %}
+
+        <h2>📚 Course Report</h2>
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>Course</th>
+                        <th>Department</th>
+                        <th>Duration</th>
+                        <th>Students</th>
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for item in course_report %}
+
+                    <tr>
+
+                        <td>
+                            <strong>
+                                {{ item.course.name }}
+                            </strong>
+                        </td>
+
+                        <td>
+                            {{ item.course.department.name }}
+                        </td>
+
+                        <td>
+                            {{ item.course.duration|default:"Not specified" }}
+                        </td>
+
+                        <td>
+                            <strong>
+                                {{ item.student_count }}
+                            </strong>
+                        </td>
+
+                    </tr>
+
+
+                    {% empty %}
+
+                    <tr>
+
+                        <td colspan="4" class="empty">
+                            No courses found.
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        {% endif %}
+
+
+        <!-- ================================================== -->
+        <!-- MARK SUMMARY -->
+        <!-- ================================================== -->
+
+        <div class="mark-summary">
+
+            <div class="summary-box pass">
+
+                <div class="summary-label">
+                    Passed Mark Records
+                </div>
+
+                <div class="summary-value">
+                    {{ passed_marks }}
+                </div>
+
+            </div>
+
+
+            <div class="summary-box fail">
+
+                <div class="summary-label">
+                    Failed Mark Records
+                </div>
+
+                <div class="summary-value">
+                    {{ failed_marks }}
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+{% endblock %}

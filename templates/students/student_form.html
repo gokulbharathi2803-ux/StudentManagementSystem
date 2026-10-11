@@ -1,0 +1,27 @@
+{% extends "students/base.html" %}
+
+{% block title %}{{ page_title }} | StudentMS{% endblock %}
+{% block page_heading %}{{ page_title }}{% endblock %}
+
+{% block content %}
+    <section class="card form-card">
+        <form method="post">
+            {% csrf_token %}
+            {% if form.non_field_errors %}<div class="login-error">{{ form.non_field_errors }}</div>{% endif %}
+            <div class="form-grid">
+                {% for field in form %}
+                    <div class="form-group">
+                        {{ field.label_tag }}
+                        {{ field }}
+                        {% if field.help_text %}<small class="muted">{{ field.help_text }}</small>{% endif %}
+                        {% if field.errors %}<div class="login-error">{{ field.errors }}</div>{% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="form-actions">
+                <button class="btn" type="submit">Save student</button>
+                <a class="btn btn-secondary" href="{% url 'student_list' %}">Cancel</a>
+            </div>
+        </form>
+    </section>
+{% endblock %}

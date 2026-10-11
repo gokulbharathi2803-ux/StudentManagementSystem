@@ -1,0 +1,42 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}StudentMS{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/studentms.css' %}">
+    <script src="{% static 'js/studentms.js' %}" defer></script>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+<div class="layout">
+    {% include "students/includes/sidebar_navigation.html" %}
+    <main class="main">
+        <header class="topbar">
+            <div>
+                <h1>{% block page_heading %}StudentMS{% endblock %}</h1>
+                <p class="muted">Welcome, {{ request.user.username }}.</p>
+            </div>
+            <form class="logout-form" method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button class="logout-button" type="submit">Logout</button>
+            </form>
+        </header>
+
+        {% if messages %}
+            <div class="messages" aria-live="polite">
+                {% for message in messages %}
+                    <div class="message {{ message.tags }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+
+        <footer class="page-footer">StudentMS — Student Management System</footer>
+    </main>
+</div>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

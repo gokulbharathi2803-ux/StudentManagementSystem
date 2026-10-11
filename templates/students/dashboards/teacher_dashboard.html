@@ -1,0 +1,55 @@
+{% extends "students/base.html" %}
+
+{% block title %}Teacher Dashboard | StudentMS{% endblock %}
+{% block page_heading %}Teacher Dashboard{% endblock %}
+
+{% block content %}
+    <p class="muted">Welcome, {{ request.user.username }}.</p>
+
+    {% if teacher_profile %}
+        <section class="panel">
+            <h2>My Teaching Profile</h2>
+            <div class="content-grid">
+                <p><strong>Name:</strong> {{ teacher_profile.name }}</p>
+                <p><strong>Email:</strong> {{ teacher_profile.email }}</p>
+                <p><strong>Department:</strong> {{ teacher_profile.department|default:"—" }}</p>
+                <p><strong>Assigned courses:</strong>
+                    {% for course in teacher_profile.courses.all %}{{ course.name }}{% if not forloop.last %}, {% endif %}{% empty %}No courses assigned{% endfor %}
+                </p>
+            </div>
+        </section>
+    {% else %}
+        <div class="notice">No teacher profile is linked to this account. Contact an administrator.</div>
+    {% endif %}
+
+    <section class="stats">
+        <article class="stat-card"><p>Total Students</p><h2>{{ total_students|default:0 }}</h2></article>
+        <article class="stat-card"><p>Departments</p><h2>{{ total_departments|default:0 }}</h2></article>
+        <article class="stat-card"><p>Courses</p><h2>{{ total_courses|default:0 }}</h2></article>
+        <article class="stat-card"><p>Attendance Records</p><h2>{{ total_attendance|default:0 }}</h2></article>
+    </section>
+
+    <section class="panel">
+        <h2>Quick Access</h2>
+        <div class="quick-links">
+            <a class="quick-link" href="{% url 'teacher_students' %}"><strong>Students</strong><span>View registered student details.</span></a>
+            <a class="quick-link" href="{% url 'attendance_list' %}"><strong>Attendance</strong><span>View and record student attendance.</span></a>
+            <a class="quick-link" href="{% url 'marks_results' %}"><strong>Marks &amp; Results</strong><span>View and manage academic results.</span></a>
+            <a class="quick-link" href="{% url 'reports' %}"><strong>Reports</strong><span>Review available student reports.</span></a>
+        </div>
+    </section>
+
+    <section class="panel">
+        <h2>Recent Students</h2>
+        <div class="table-wrapper">
+            <table>
+                <thead><tr><th>#</th><th>Record ID</th><th>Name</th><th>Email</th><th>Department</th><th>Course</th></tr></thead>
+                <tbody>
+                    {% for student in recent_students %}
+                        <tr><td>{{ forloop.counter }}</td><td>{{ student.pk }}</td><td>{{ student.name }}</td><td>{{ student.email }}</td><td>{{ student.department }}</td><td>{{ student.course }}</td></tr>
+                    {% empty %}<tr><td colspan="6" class="empty">No students found.</td></tr>{% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends "students/base.html" %}
+
+{% block title %}Edit Marks | StudentMS{% endblock %}
+{% block page_heading %}Edit Marks{% endblock %}
+
+{% block content %}
+    <section class="panel">
+        <h2>{{ student.name }} — {{ mark.subject }}</h2>
+        <form method="post" class="form-grid">
+            {% csrf_token %}
+            {% for field in form %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% for error in field.errors %}<p class="error">{{ error }}</p>{% endfor %}
+                </div>
+            {% endfor %}
+            <div class="form-actions">
+                <button class="btn" type="submit">Save changes</button>
+                <a class="btn btn-secondary" href="{% url 'marks_results' %}">Cancel</a>
+            </div>
+            {% for error in form.non_field_errors %}<p class="error">{{ error }}</p>{% endfor %}
+        </form>
+    </section>
+{% endblock %}

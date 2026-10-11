@@ -1,0 +1,11 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}StudentMS | Admin Panel{% endblock %}
+
+{% block bodyclass %}studentms-admin{% endblock %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'css/studentms.css' %}">
+{% endblock %}

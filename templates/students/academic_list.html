@@ -1,0 +1,55 @@
+{% extends "students/base.html" %}
+
+{% block title %}Semesters &amp; Sections | StudentMS{% endblock %}
+{% block page_heading %}Semesters &amp; Sections{% endblock %}
+
+{% block content %}
+    <section class="card">
+        <div class="page-heading">
+            <h2>Semesters</h2>
+            {% if is_admin %}<a class="btn" href="{% url 'semester_create' %}">Add semester</a>{% endif %}
+        </div>
+        <div class="table-wrapper">
+            <table>
+                <thead><tr><th>Number</th><th>Name</th><th>Description</th><th>Sections</th>{% if is_admin %}<th>Actions</th>{% endif %}</tr></thead>
+                <tbody>
+                    {% for semester in semesters %}
+                        <tr>
+                            <td>{{ semester.number }}</td><td>{{ semester.name }}</td><td>{{ semester.description|default:"—" }}</td><td>{{ semester.sections.count }}</td>
+                            {% if is_admin %}
+                                <td>
+                                    <a href="{% url 'semester_update' semester.pk %}">Edit</a>
+                                    <form method="post" action="{% url 'semester_delete' semester.pk %}" class="inline-form" data-confirm="Delete this semester?">{% csrf_token %}<button class="btn btn-danger" type="submit">Delete</button></form>
+                                </td>
+                            {% endif %}
+                        </tr>
+                    {% empty %}<tr><td colspan="{% if is_admin %}5{% else %}4{% endif %}" class="empty-state">No semesters have been added.</td></tr>{% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+    <section class="card">
+        <div class="page-heading">
+            <h2>Sections</h2>
+            {% if is_admin %}<a class="btn" href="{% url 'section_create' %}">Add section</a>{% endif %}
+        </div>
+        <div class="table-wrapper">
+            <table>
+                <thead><tr><th>Section</th><th>Semester</th><th>Description</th>{% if is_admin %}<th>Actions</th>{% endif %}</tr></thead>
+                <tbody>
+                    {% for section in sections %}
+                        <tr>
+                            <td>{{ section.name }}</td><td>{{ section.semester.name }}</td><td>{{ section.description|default:"—" }}</td>
+                            {% if is_admin %}
+                                <td>
+                                    <a href="{% url 'section_update' section.pk %}">Edit</a>
+                                    <form method="post" action="{% url 'section_delete' section.pk %}" class="inline-form" data-confirm="Delete this section?">{% csrf_token %}<button class="btn btn-danger" type="submit">Delete</button></form>
+                                </td>
+                            {% endif %}
+                        </tr>
+                    {% empty %}<tr><td colspan="{% if is_admin %}4{% else %}3{% endif %}" class="empty-state">No sections have been added.</td></tr>{% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+{% endblock %}

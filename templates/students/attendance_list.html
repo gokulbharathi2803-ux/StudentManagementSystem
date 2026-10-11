@@ -1,0 +1,87 @@
+{% extends "students/base.html" %}
+
+{% block title %}Attendance | StudentMS{% endblock %}
+{% block page_heading %}Attendance Management{% endblock %}
+
+{% block content %}
+    <p class="muted">Record and review student attendance by date.</p>
+
+    <section class="panel">
+        <form method="get" class="filter-form">
+            <div class="field">
+                <label for="date">Attendance date</label>
+                <input type="date" id="date" name="date" value="{{ selected_date|default:'' }}" required>
+            </div>
+            <div class="field">
+                <label for="q">Search student</label>
+                <input type="search" id="q" name="q" value="{{ query }}" placeholder="Name or email">
+            </div>
+            <button class="btn" type="submit">View attendance</button>
+            <a class="btn btn-secondary" href="{% url 'attendance_list' %}">Clear</a>
+        </form>
+    </section>
+
+    <section class="panel">
+        <h2>Student Attendance Records</h2>
+        {% if not selected_date %}
+            <p class="muted">Select a date above to view and mark attendance for that day.</p>
+        {% endif %}
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Record ID</th><th>Student</th><th>Department</th><th>Course</th>
+                        <th>Current status</th><th>Present days</th><th>Absent days</th>
+                        <th>Attendance</th><th>Mark attendance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in student_attendance %}
+                        <tr>
+                            <td>{{ item.student.pk }}</td>
+                            <td>{{ item.student.name }}</td>
+                            <td>{{ item.student.department }}</td>
+                            <td>{{ item.student.course }}</td>
+                            <td>
+                                {% if item.status == "Present" %}
+                                    <span class="status present">Present</span>
+                                {% elif item.status == "Absent" %}
+                                    <span class="status absent">Absent</span>
+                                {% else %}
+                                    <span class="status not-marked">Not marked</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ item.present_days }}</td>
+                            <td>{{ item.absent_days }}</td>
+                            <td>{{ item.attendance_percentage }}%</td>
+                            <td>
+                                {% if selected_date %}
+                                    <div class="actions">
+                                        <form method="post" action="{% url 'mark_attendance' %}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="student_id" value="{{ item.student.pk }}">
+                                            <input type="hidden" name="date" value="{{ selected_date }}">
+                                            <input type="hidden" name="status" value="Present">
+                                            <button class="btn btn-present" type="submit">Present</button>
+                                        </form>
+                                        <form method="post" action="{% url 'mark_attendance' %}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="student_id" value="{{ item.student.pk }}">
+                                            <input type="hidden" name="date" value="{{ selected_date }}">
+                                            <input type="hidden" name="status" value="Absent">
+                                            <button class="btn btn-absent" type="submit">Absent</button>
+                                        </form>
+                                    </div>
+                                {% else %}
+                                    <span class="muted">Select a date first</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="9" class="empty">No students have been registered yet.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+{% endblock %}

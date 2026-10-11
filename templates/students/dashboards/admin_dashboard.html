@@ -1,0 +1,78 @@
+{% extends "students/base.html" %}
+
+{% block title %}Admin Dashboard | StudentMS{% endblock %}
+{% block page_heading %}Admin Dashboard{% endblock %}
+
+{% block content %}
+    <p class="muted">Welcome, {{ request.user.username }}. Manage your system.</p>
+
+    <section class="stats">
+        <article class="stat-card"><p>Total Students</p><h2>{{ total_students|default:0 }}</h2></article>
+        <article class="stat-card"><p>Departments</p><h2>{{ total_departments|default:0 }}</h2></article>
+        <article class="stat-card"><p>Courses</p><h2>{{ total_courses|default:0 }}</h2></article>
+        <article class="stat-card"><p>Teachers</p><h2>{{ total_teachers|default:0 }}</h2></article>
+        <article class="stat-card"><p>Semesters / Sections</p><h2>{{ total_semesters|default:0 }} / {{ total_sections|default:0 }}</h2></article>
+        <article class="stat-card"><p>Attendance Rate</p><h2>{{ attendance_percentage|default:0 }}%</h2></article>
+        <article class="stat-card"><p>Attendance Records</p><h2>{{ total_attendance|default:0 }}</h2></article>
+    </section>
+
+    <section class="panel">
+        <h2>Quick Access</h2>
+        <div class="quick-links">
+            <a class="quick-link" href="{% url 'student_list' %}"><strong>Students</strong><span>View and manage registered student details.</span></a>
+            <a class="quick-link" href="{% url 'department_list' %}"><strong>Departments</strong><span>Manage academic departments.</span></a>
+            <a class="quick-link" href="{% url 'course_list' %}"><strong>Courses</strong><span>Manage courses and department assignments.</span></a>
+            <a class="quick-link" href="{% url 'attendance_list' %}"><strong>Attendance</strong><span>View and record student attendance.</span></a>
+            <a class="quick-link" href="{% url 'marks_results' %}"><strong>Marks &amp; Results</strong><span>View student marks, grades and results.</span></a>
+            <a class="quick-link" href="{% url 'manage_users' %}"><strong>Manage Users</strong><span>Manage administrator, teacher and student accounts.</span></a>
+            {% if can_manage_login_credentials %}
+                <a class="quick-link" href="{% url 'student_teacher_credentials' %}"><strong>Login Credentials</strong><span>Generate missing accounts and download the protected credentials report.</span></a>
+            {% endif %}
+            <a class="quick-link" href="{% url 'academic_list' %}"><strong>Semesters &amp; Sections</strong><span>Review the academic calendar structure.</span></a>
+            <a class="quick-link" href="{% url 'reports' %}"><strong>Reports</strong><span>Review student and academic reports.</span></a>
+            <a class="quick-link" href="/admin/"><strong>Django Admin</strong><span>Open Django's model administration.</span></a>
+        </div>
+    </section>
+
+    <section class="panel">
+        <h2>Recent Students</h2>
+        <div class="table-wrapper">
+            <table>
+                <thead><tr><th>Name</th><th>Email</th><th>Department</th><th>Course</th></tr></thead>
+                <tbody>
+                    {% for student in recent_students %}
+                        <tr><td>{{ student.name }}</td><td>{{ student.email }}</td><td>{{ student.department }}</td><td>{{ student.course }}</td></tr>
+                    {% empty %}<tr><td colspan="4" class="empty">No students have been added yet.</td></tr>{% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="panel">
+        <h2>Recent Marks &amp; Results</h2>
+        <div class="table-wrapper">
+            <table>
+                <thead><tr><th>Student</th><th>Subject</th><th>Total Marks</th><th>Grade</th><th>Result</th></tr></thead>
+                <tbody>
+                    {% for mark in recent_marks %}
+                        <tr><td>{{ mark.student.name }}</td><td>{{ mark.subject }}</td><td>{{ mark.total_marks }}</td><td>{{ mark.grade }}</td><td>{{ mark.result }}</td></tr>
+                    {% empty %}<tr><td colspan="5" class="empty">No marks have been added yet.</td></tr>{% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="panel">
+        <h2>Recent Attendance</h2>
+        <div class="table-wrapper">
+            <table>
+                <thead><tr><th>Date</th><th>Student</th><th>Course</th><th>Status</th></tr></thead>
+                <tbody>
+                    {% for record in recent_attendance %}
+                        <tr><td>{{ record.date }}</td><td>{{ record.student.name }}</td><td>{{ record.student.course }}</td><td>{{ record.status }}</td></tr>
+                    {% empty %}<tr><td colspan="4" class="empty">No attendance has been recorded yet.</td></tr>{% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+{% endblock %}

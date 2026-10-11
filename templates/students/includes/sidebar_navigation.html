@@ -1,0 +1,54 @@
+<aside class="sidebar admin-sidebar">
+    <div class="brand">StudentMS</div>
+
+    <nav class="sidebar-nav" aria-label="Main navigation">
+    <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' or request.resolver_match.url_name == 'admin_dashboard' or request.resolver_match.url_name == 'teacher_dashboard' or request.resolver_match.url_name == 'student_dashboard' %}active{% endif %}"
+       href="{% if is_admin %}{% url 'admin_dashboard' %}{% elif is_teacher %}{% url 'teacher_dashboard' %}{% elif is_student %}{% url 'student_dashboard' %}{% else %}{% url 'dashboard' %}{% endif %}">
+        Dashboard
+    </a>
+
+    {% if is_admin or is_teacher %}
+        <a class="nav-link {% if request.resolver_match.url_name == 'student_list' or request.resolver_match.url_name == 'teacher_students' %}active{% endif %}"
+           href="{% if is_admin %}{% url 'student_list' %}{% else %}{% url 'teacher_students' %}{% endif %}">
+            Students
+        </a>
+    {% endif %}
+
+    {% if is_student %}
+        <a class="nav-link {% if request.resolver_match.url_name == 'student_profile' %}active{% endif %}"
+           href="{% url 'student_profile' %}">My Profile</a>
+    {% endif %}
+
+    {% if not is_student %}
+        <a class="nav-link {% if request.resolver_match.url_name == 'department_list' %}active{% endif %}"
+           href="{% url 'department_list' %}">Departments</a>
+        <a class="nav-link {% if request.resolver_match.url_name == 'course_list' %}active{% endif %}"
+           href="{% url 'course_list' %}">Courses</a>
+        {% if is_admin %}
+            <a class="nav-link {% if request.resolver_match.url_name == 'academic_list' %}active{% endif %}"
+               href="{% url 'academic_list' %}">Semesters &amp; Sections</a>
+        {% endif %}
+    {% endif %}
+
+    <a class="nav-link {% if request.resolver_match.url_name == 'attendance_list' or request.resolver_match.url_name == 'student_attendance' %}active{% endif %}"
+       href="{% if is_student %}{% url 'student_attendance' %}{% else %}{% url 'attendance_list' %}{% endif %}">
+        {% if is_student %}My Attendance{% else %}Attendance{% endif %}
+    </a>
+
+    <a class="nav-link {% if request.resolver_match.url_name == 'marks_results' or request.resolver_match.url_name == 'student_results' %}active{% endif %}"
+       href="{% if is_student %}{% url 'student_results' %}{% else %}{% url 'marks_results' %}{% endif %}">
+        {% if is_student %}My Results{% else %}Marks &amp; Results{% endif %}
+    </a>
+
+    {% if is_admin or is_teacher %}
+        <a class="nav-link {% if request.resolver_match.url_name == 'reports' %}active{% endif %}"
+           href="{% url 'reports' %}">Reports</a>
+    {% endif %}
+
+    {% if is_admin %}
+        <a class="nav-link {% if request.resolver_match.url_name == 'manage_users' %}active{% endif %}"
+           href="{% url 'manage_users' %}">Manage Users</a>
+        <a class="nav-link" href="/admin/">Django Admin</a>
+    {% endif %}
+    </nav>
+</aside>

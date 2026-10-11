@@ -1,0 +1,137 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | StudentMS</title>
+
+    <link rel="stylesheet" href="{% static 'css/studentms.css' %}">
+
+    <script src="{% static 'js/studentms.js' %}" defer></script>
+</head>
+
+<body class="login-page">
+<main class="login-layout">
+
+    <section class="login-banner">
+        <div class="banner-content">
+            <div class="brand-logo">S</div>
+            <h1>StudentMS</h1>
+            <h2>Student Management System</h2>
+            <p>
+                Manage students, departments, courses, attendance
+                and academic results in one place.
+            </p>
+        </div>
+    </section>
+
+    <section class="login-side">
+        <div class="login-card">
+
+            <div class="small-logo">S</div>
+            <h2>Welcome Back!</h2>
+            <p class="subheading">Sign in to access your dashboard.</p>
+
+            {% if error %}
+                <div class="login-error">{{ error }}</div>
+            {% endif %}
+
+            <form method="post">
+                {% csrf_token %}
+
+                <input
+                    type="hidden"
+                    name="next"
+                    value="{{ request.GET.next|default:'/' }}"
+                >
+
+                <label for="id_username">Username</label>
+                <input
+                    type="text"
+                    id="id_username"
+                    name="username"
+                    placeholder="Enter your username"
+                    autocomplete="username"
+                    value="{{ request.POST.username|default:'' }}"
+                    required
+                    autofocus
+                >
+
+                <label for="id_password">Password</label>
+                <input
+                    type="password"
+                    id="id_password"
+                    name="password"
+                    placeholder="Enter your password"
+                    autocomplete="current-password"
+                    required
+                >
+
+                <div class="role-selection">
+                    <span class="role-title">
+                        <span class="required-mark" aria-hidden="true">*</span> Select Role
+                    </span>
+
+                    <div class="role-options">
+                        <label class="role-option">
+                            <input
+                                type="radio"
+                                name="role"
+                                value="staff"
+                                {% if request.POST.role == "staff" or request.POST.role == "admin" or not request.POST.role %}
+                                    checked
+                                {% endif %}
+                                required
+                            >
+                            Staff
+                        </label>
+
+                        <label class="role-option">
+                            <input
+                                type="radio"
+                                name="role"
+                                value="teacher"
+                                {% if request.POST.role == "teacher" %}
+                                    checked
+                                {% endif %}
+                                required
+                            >
+                            Teacher
+                        </label>
+
+                        <label class="role-option">
+                            <input
+                                type="radio"
+                                name="role"
+                                value="student"
+                                {% if request.POST.role == "student" %}
+                                    checked
+                                {% endif %}
+                                required
+                            >
+                            Student
+                        </label>
+                    </div>
+                </div>
+
+                <label class="show-password">
+                    <input type="checkbox" id="showPassword">
+                    <span>Show password</span>
+                </label>
+
+                <button type="submit" class="login-button">
+                    Login
+                </button>
+            </form>
+
+            <p class="login-footer">
+                StudentMS · Secure Login
+            </p>
+
+        </div>
+    </section>
+</main>
+
+</body>
+</html>

@@ -1,0 +1,43 @@
+<div class="form-group">
+
+    <label for="section">
+        Section
+    </label>
+
+    <select
+        name="section"
+        id="section"
+        required
+    >
+
+        <option
+            value="A"
+            {% if student.section == "A" %}selected{% endif %}
+        >
+            Section A
+        </option>
+
+        <option
+            value="B"
+            {% if student.section == "B" %}selected{% endif %}
+        >
+            Section B
+        </option>
+
+        <option
+            value="C"
+            {% if student.section == "C" %}selected{% endif %}
+        >
+            Section C
+        </option>
+
+        <option
+            value="D"
+            {% if student.section == "D" %}selected{% endif %}
+        >
+            Section D
+        </option>
+
+    </select>
+
+</div>

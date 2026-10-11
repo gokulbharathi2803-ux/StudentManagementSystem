@@ -1,0 +1,80 @@
+{% extends "students/base.html" %}
+
+{% block title %}Manage Users | StudentMS{% endblock %}
+{% block page_heading %}Manage Users &amp; Teachers{% endblock %}
+
+{% block content %}
+    <section class="content-grid">
+        <div class="card">
+            <h2>Create Account</h2>
+            <form method="post" class="form-grid">
+                {% csrf_token %}
+                {% for field in form %}
+                    <div class="form-group">
+                        {{ field.label_tag }}
+                        {{ field }}
+                        {% if field.errors %}<div class="login-error">{{ field.errors }}</div>{% endif %}
+                    </div>
+                {% endfor %}
+                {% if form.non_field_errors %}
+                    <div class="login-error">{{ form.non_field_errors }}</div>
+                {% endif %}
+                <div class="form-actions">
+                    <button class="btn" type="submit">Create account</button>
+                </div>
+            </form>
+            <p class="muted">
+                Student and Teacher usernames and initial passwords are generated
+                from their profile identifiers. Existing account passwords are
+                never reset.
+            </p>
+        </div>
+        <div class="card">
+            <h2>Existing Accounts</h2>
+            <div class="table-wrapper">
+                <table>
+                    <thead><tr><th>Username</th><th>Email</th><th>Role</th><th>Status</th></tr></thead>
+                    <tbody>
+                        {% for account in users %}
+                            <tr>
+                                <td>{{ account.username }}</td>
+                                <td>{{ account.email|default:"—" }}</td>
+                                <td>
+                                    {% for group in account.groups.all %}
+                                        <span class="badge badge-info">{{ group.name }}</span>
+                                    {% empty %}
+                                        {% if account.is_superuser %}Superuser{% else %}Unassigned{% endif %}
+                                    {% endfor %}
+                                </td>
+                                <td>{% if account.is_active %}Active{% else %}Inactive{% endif %}</td>
+                            </tr>
+                        {% empty %}
+                            <tr><td colspan="4" class="empty-state">No accounts found.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <section class="card">
+        <h2>Teacher Profiles</h2>
+        <div class="table-wrapper">
+            <table>
+                <thead><tr><th>Name</th><th>Email</th><th>Department</th><th>Assigned courses</th></tr></thead>
+                <tbody>
+                    {% for teacher in teachers %}
+                        <tr>
+                            <td>{{ teacher.name }}</td>
+                            <td>{{ teacher.email }}</td>
+                            <td>{{ teacher.department|default:"—" }}</td>
+                            <td>{% for course in teacher.courses.all %}{{ course.name }}{% if not forloop.last %}, {% endif %}{% empty %}None assigned{% endfor %}</td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="4" class="empty-state">No teacher profiles have been created.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+{% endblock %}

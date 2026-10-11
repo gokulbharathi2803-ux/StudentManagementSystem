@@ -1,0 +1,22 @@
+{% extends "students/base.html" %}
+
+{% block title %}{{ student.name }} | StudentMS{% endblock %}
+{% block page_heading %}Student Profile{% endblock %}
+
+{% block content %}
+    <section class="card">
+        <h2>{{ student.name }}</h2>
+        <div class="content-grid">
+            <p><strong>Email:</strong> {{ student.email }}</p>
+            <p><strong>Phone:</strong> {{ student.phone|default:"—" }}</p>
+            <p><strong>Department:</strong> {{ student.department }}</p>
+            <p><strong>Course:</strong> {{ student.course }}</p>
+            <p><strong>Semester:</strong> {{ student.semester|default:"—" }}</p>
+            <p><strong>Section:</strong> {{ student.section|default:"—" }}</p>
+        </div>
+        {% if is_admin %}
+            <a class="btn" href="{% url 'student_update' student.pk %}">Edit student</a>
+        {% endif %}
+        <a class="btn btn-secondary" href="{% url 'student_list' %}">Back to students</a>
+    </section>
+{% endblock %}

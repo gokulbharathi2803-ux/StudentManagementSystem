@@ -1,0 +1,25 @@
+{% extends "students/base.html" %}
+
+{% block title %}Delete Student | StudentMS{% endblock %}
+{% block page_heading %}Confirm Student Deletion{% endblock %}
+
+{% block content %}
+    <section class="confirm-card">
+        <h2>Delete {{ student.name }}?</h2>
+        <p class="muted">
+            This action cannot be undone. Related records may be affected according
+            to the existing database relationships.
+        </p>
+        <div class="content-grid">
+            <p><strong>Record ID:</strong> {{ student.pk }}</p>
+            <p><strong>Email:</strong> {{ student.email }}</p>
+            <p><strong>Department:</strong> {{ student.department }}</p>
+            <p><strong>Course:</strong> {{ student.course }}</p>
+        </div>
+        <form method="post" class="form-actions">
+            {% csrf_token %}
+            <button class="btn btn-danger" type="submit">Yes, delete student</button>
+            <a class="btn btn-secondary" href="{% url 'student_list' %}">Cancel</a>
+        </form>
+    </section>
+{% endblock %}

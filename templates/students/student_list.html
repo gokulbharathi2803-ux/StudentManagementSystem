@@ -1,0 +1,167 @@
+{% extends "students/base.html" %}
+
+{% block title %}Students | StudentMS{% endblock %}
+{% block page_heading %}Students{% endblock %}
+
+{% block content %}
+    <section class="panel">
+        <div class="student-list-heading">
+            <div>
+                <h2>Student records</h2>
+                <p class="muted">
+                    {{ filtered_count }} record{{ filtered_count|pluralize }} found.
+                    Showing {{ students|length }} on this page.
+                </p>
+            </div>
+            <div class="student-list-actions">
+                {% if is_admin %}
+                    <a class="btn" href="{% url 'student_create' %}">Add student</a>
+                    <form method="post" action="{% url 'generate_student_accounts' %}">
+                        {% csrf_token %}
+                        <button class="btn btn-secondary" type="submit">
+                            Generate missing accounts
+                        </button>
+                    </form>
+                {% endif %}
+                <a class="btn btn-secondary"
+                   href="{% url 'student_list_export' %}{% if export_query %}?{{ export_query }}{% endif %}">
+                    Export complete list to CSV
+                </a>
+            </div>
+        </div>
+
+        <form method="get" action="{% url 'student_list' %}" class="search-form">
+            <label class="student-search-label" for="student-search">
+                Search by Student ID, name, email, department, or course
+            </label>
+            <input id="student-search" type="search" name="q"
+                   value="{{ query }}" placeholder="Search students...">
+
+            <select name="department" aria-label="Filter by department">
+                <option value="">All departments</option>
+                {% for department in departments %}
+                    <option value="{{ department.pk }}" {% if request.GET.department == department.pk|stringformat:"s" %}selected{% endif %}>
+                        {{ department.name }}
+                    </option>
+                {% endfor %}
+            </select>
+            <select name="course" aria-label="Filter by course">
+                <option value="">All courses</option>
+                {% for course in courses %}
+                    <option value="{{ course.pk }}" {% if request.GET.course == course.pk|stringformat:"s" %}selected{% endif %}>
+                        {{ course.name }}
+                    </option>
+                {% endfor %}
+            </select>
+            <select name="semester" aria-label="Filter by semester">
+                <option value="">All semesters</option>
+                {% for semester in semesters %}
+                    <option value="{{ semester.pk }}" {% if request.GET.semester == semester.pk|stringformat:"s" %}selected{% endif %}>
+                        {{ semester.name }}
+                    </option>
+                {% endfor %}
+            </select>
+            <select name="section" aria-label="Filter by section">
+                <option value="">All sections</option>
+                {% for section in sections %}
+                    <option value="{{ section.pk }}" {% if request.GET.section == section.pk|stringformat:"s" %}selected{% endif %}>
+                        {{ section.semester.name }} — {{ section.name }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            <label for="page-size">Rows per page</label>
+            <select id="page-size" name="per_page">
+                {% for size in page_sizes %}
+                    <option value="{{ size }}" {% if page_size == size %}selected{% endif %}>
+                        {{ size }}
+                    </option>
+                {% endfor %}
+            </select>
+            <button class="btn" type="submit">Search / filter</button>
+            <a class="btn btn-secondary" href="{% url 'student_list' %}">Clear</a>
+        </form>
+
+        <div class="panel table-panel">
+            <table class="student-table">
+                <thead>
+                    <tr>
+                        <th>Student ID</th>
+                        <th>Student name</th>
+                        <th>Username</th>
+                        <th>Initial password status</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Department</th>
+                        <th>Course</th>
+                        <th>Semester</th>
+                        <th>Section</th>
+                        <th>Account status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in students %}
+                        {% with student=row.student %}
+                            <tr>
+                                <td>{{ student.student_id|default:"—" }}</td>
+                                <td>{{ student.name }}</td>
+                                <td>{{ row.username|default:"—" }}</td>
+                                <td>{{ row.password_status }}</td>
+                                <td>{{ student.email }}</td>
+                                <td>{{ student.phone|default:"—" }}</td>
+                                <td>{{ student.department }}</td>
+                                <td>{{ student.course }}</td>
+                                <td>{{ student.semester|default:"—" }}</td>
+                                <td>{{ student.section|default:"—" }}</td>
+                                <td>{{ row.account_status }}</td>
+                                <td>
+                                    <div class="student-row-actions">
+                                        <a href="{% url 'student_detail' student.pk %}">View</a>
+                                        {% if is_admin %}
+                                            <a href="{% url 'student_update' student.pk %}">Edit</a>
+                                            <form method="post"
+                                                  action="{% url 'delete_student' student.pk %}"
+                                                  data-confirm="Delete this student profile?">
+                                                {% csrf_token %}
+                                                <button class="link-button danger-link" type="submit">
+                                                    Delete
+                                                </button>
+                                            </form>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endwith %}
+                    {% empty %}
+                        <tr>
+                            <td colspan="12" class="empty">
+                                {% if query or request.GET.department or request.GET.course or request.GET.semester or request.GET.section %}
+                                    No students match these search or filter criteria.
+                                {% else %}
+                                    No student records are available yet.
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if page_obj.paginator.num_pages > 1 %}
+            <nav class="student-pagination" aria-label="Student list pages">
+                {% if page_obj.has_previous %}
+                    <a href="?{% if page_query %}{{ page_query }}&amp;{% endif %}page={{ page_obj.previous_page_number }}">Previous</a>
+                {% endif %}
+                <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                {% if page_obj.has_next %}
+                    <a href="?{% if page_query %}{{ page_query }}&amp;{% endif %}page={{ page_obj.next_page_number }}">Next</a>
+                {% endif %}
+            </nav>
+        {% endif %}
+    </section>
+    <p class="muted">
+        Gender, year, and created date are not stored in the current Student model.
+        Initial passwords are never displayed or exported.
+    </p>
+{% endblock %}

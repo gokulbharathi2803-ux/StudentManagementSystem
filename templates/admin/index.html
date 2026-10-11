@@ -1,0 +1,46 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block content %}
+<div id="content-main" class="studentms-dashboard">
+    <header class="welcome">
+        <h1>Dashboard</h1>
+        <p>Manage your students, academics and results.</p>
+    </header>
+
+    {% if app_list %}
+        <div class="dashboard-grid">
+            {% for app in app_list %}
+                {% for model in app.models %}
+                    {% if model.admin_url %}
+                        <a class="dashboard-card" href="{{ model.admin_url }}">
+                            <span class="card-icon">
+                                {% if 'student' in model.object_name|lower %}ST
+                                {% elif 'semester' in model.object_name|lower %}SM
+                                {% elif 'section' in model.object_name|lower %}SC
+                                {% elif 'attendance' in model.object_name|lower %}AT
+                                {% elif 'mark' in model.object_name|lower %}MR
+                                {% elif 'course' in model.object_name|lower %}CR
+                                {% elif 'department' in model.object_name|lower %}DP
+                                {% elif 'user' in model.object_name|lower %}US
+                                {% else %}{{ model.name|slice:":2"|upper }}
+                                {% endif %}
+                            </span>
+                            <span class="card-content">
+                                <strong>{{ model.name }}</strong>
+                                <span>Manage {{ model.name|lower }}</span>
+                            </span>
+                            <span class="card-arrow" aria-hidden="true">›</span>
+                        </a>
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}
+        </div>
+    {% else %}
+        <section class="empty-state">
+            <h2>No management sections available</h2>
+            <p>Check your Django admin registrations and user permissions.</p>
+        </section>
+    {% endif %}
+</div>
+{% endblock %}

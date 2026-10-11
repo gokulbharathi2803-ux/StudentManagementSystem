@@ -1,0 +1,215 @@
+{% extends "students/base.html" %}
+
+{% block title %}Dashboard | StudentMS{% endblock %}
+{% block page_heading %}
+    {% if is_student %}My Dashboard{% else %}Dashboard{% endif %}
+{% endblock %}
+
+{% block content %}
+
+{% if is_student %}
+
+    {% if student_profile %}
+        <section class="panel">
+            <h2>My Student Profile</h2>
+            <p><strong>Name:</strong> {{ student_profile.name }}</p>
+            <p><strong>Email:</strong> {{ student_profile.email }}</p>
+            <p><strong>Department:</strong> {{ student_profile.department }}</p>
+            <p><strong>Course:</strong> {{ student_profile.course }}</p>
+            <p><strong>Semester:</strong> {{ student_profile.semester }}</p>
+            <p><strong>Section:</strong> {{ student_profile.section }}</p>
+        </section>
+    {% else %}
+        <div class="notice">
+            Your account is not linked to a student record yet.
+            Please contact your administrator.
+        </div>
+    {% endif %}
+
+    <section class="cards">
+        <div class="stat-card">
+            <p>Marks Records</p>
+            <h2>{{ total_marks_records|default:0 }}</h2>
+        </div>
+        <div class="stat-card">
+            <p>Classes Present</p>
+            <h2>{{ present_count|default:0 }}</h2>
+        </div>
+        <div class="stat-card">
+            <p>Attendance Records</p>
+            <h2>{{ total_attendance_records|default:0 }}</h2>
+        </div>
+        <div class="stat-card">
+            <p>Attendance Rate</p>
+            <h2>{{ attendance_percentage|default:0 }}%</h2>
+        </div>
+    </section>
+
+    <section class="panel">
+        <h2>My Marks &amp; Results</h2>
+        {% if student_marks %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Subject</th>
+                        <th>Internal</th>
+                        <th>Assignment</th>
+                        <th>Practical</th>
+                        <th>Exam</th>
+                        <th>Total</th>
+                        <th>Grade</th>
+                        <th>Result</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for mark in student_marks %}
+                        <tr>
+                            <td>{{ mark.subject }}</td>
+                            <td>{{ mark.internal_marks }}</td>
+                            <td>{{ mark.assignment_marks }}</td>
+                            <td>{{ mark.practical_marks }}</td>
+                            <td>{{ mark.exam_marks }}</td>
+                            <td>{{ mark.total_marks }}</td>
+                            <td>{{ mark.grade }}</td>
+                            <td>
+                                {% if mark.result == "Pass" %}
+                                    <span class="badge pass">Pass</span>
+                                {% else %}
+                                    <span class="badge fail">Fail</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="empty">No results are available yet.</p>
+        {% endif %}
+    </section>
+
+    <section class="panel">
+        <h2>My Attendance Records</h2>
+        {% if student_attendance %}
+            <table>
+                <thead>
+                    <tr><th>Date</th><th>Status</th></tr>
+                </thead>
+                <tbody>
+                    {% for record in student_attendance %}
+                        <tr>
+                            <td>{{ record.date|date:"d M Y" }}</td>
+                            <td>
+                                {% if record.status == "Present" %}
+                                    <span class="badge pass">Present</span>
+                                {% else %}
+                                    <span class="badge fail">Absent</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="empty">No attendance records are available yet.</p>
+        {% endif %}
+    </section>
+
+{% else %}
+
+    <section class="cards">
+        <div class="stat-card">
+            <p>Total Students</p>
+            <h2>{{ total_students|default:0 }}</h2>
+        </div>
+        <div class="stat-card">
+            <p>Departments</p>
+            <h2>{{ total_departments|default:0 }}</h2>
+        </div>
+        <div class="stat-card">
+            <p>Courses</p>
+            <h2>{{ total_courses|default:0 }}</h2>
+        </div>
+        <div class="stat-card">
+            <p>Attendance Rate</p>
+            <h2>{{ attendance_percentage|default:0 }}%</h2>
+        </div>
+    </section>
+
+    <section class="panel">
+        <h2>Quick Actions</h2>
+        <div class="quick-links">
+            {% if is_admin %}
+                <a class="quick-link" href="{% url 'student_list' %}">Manage Students →</a>
+            {% endif %}
+            <a class="quick-link" href="{% url 'attendance_list' %}">Manage Attendance →</a>
+            <a class="quick-link" href="{% url 'marks_results' %}">Marks &amp; Results →</a>
+            {% if is_admin %}
+                <a class="quick-link" href="{% url 'manage_users' %}">Manage User Accounts →</a>
+            {% endif %}
+        </div>
+    </section>
+
+    <section class="panel">
+        <h2>Recent Students</h2>
+        {% if recent_students %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Department</th>
+                        <th>Course</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in recent_students %}
+                        <tr>
+                            <td>{{ student.name }}</td>
+                            <td>{{ student.department }}</td>
+                            <td>{{ student.course }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="empty">No students have been added yet.</p>
+        {% endif %}
+    </section>
+
+    <section class="panel">
+        <h2>Recent Marks &amp; Results</h2>
+        {% if recent_marks %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>Subject</th>
+                        <th>Total Marks</th>
+                        <th>Grade</th>
+                        <th>Result</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for mark in recent_marks %}
+                        <tr>
+                            <td>{{ mark.student.name }}</td>
+                            <td>{{ mark.subject }}</td>
+                            <td>{{ mark.total_marks }}</td>
+                            <td>{{ mark.grade }}</td>
+                            <td>
+                                {% if mark.result == "Pass" %}
+                                    <span class="badge pass">Pass</span>
+                                {% else %}
+                                    <span class="badge fail">Fail</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="empty">No marks or results have been added yet.</p>
+        {% endif %}
+    </section>
+
+{% endif %}
+{% endblock %}

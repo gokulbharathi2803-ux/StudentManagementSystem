@@ -1,0 +1,20 @@
+{% extends "students/base.html" %}
+
+{% block title %}My Profile | StudentMS{% endblock %}
+{% block page_heading %}My Profile{% endblock %}
+
+{% block content %}
+    {% if student_profile %}
+        <section class="panel">
+            <h2>{{ student_profile.name }}</h2>
+            <p><strong>Email:</strong> {{ student_profile.email }}</p>
+            <p><strong>Phone:</strong> {{ student_profile.phone|default:"—" }}</p>
+            <p><strong>Department:</strong> {{ student_profile.department }}</p>
+            <p><strong>Course:</strong> {{ student_profile.course }}</p>
+            <p><strong>Semester:</strong> {{ student_profile.semester|default:"—" }}</p>
+            <p><strong>Section:</strong> {{ student_profile.section|default:"—" }}</p>
+        </section>
+    {% else %}
+        <div class="notice">No student profile is linked to your account. Contact an administrator.</div>
+    {% endif %}
+{% endblock %}
